@@ -305,9 +305,10 @@ bool MyApp::OnInit()
 
   //! The macintosh global menu
   wxMenuBar *menubar = new wxMenuBar;
-  menubar->Append(wxID_NEW, _("&New\tCtrl+N"));
-  menubar->Append(wxID_OPEN, _("&Open\tCtrl+O"));
-  menubar->Append(fileMenu, _("File"));
+  wxMenu* menu = new  wxMenu();
+  menu->Append(wxID_NEW, _("&New\tCtrl+N"));
+  menu->Append(wxID_OPEN, _("&Open\tCtrl+O"));
+  menu->Append(menu, _("File"));
   // add open, new, etc options to your menubar.
   wxMenuBar::MacSetCommonMenuBar(menubar);
   
