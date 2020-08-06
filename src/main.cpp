@@ -303,17 +303,23 @@ bool MyApp::OnInit()
   wxGetEnv(wxT("PATH"), &path);
   wxSetEnv(wxT("PATH"), path << wxT(":/usr/local/bin"));
 
+  //! The macintosh global menu
+  wxMenuBar *menubar = new wxMenuBar;
+  menubar->Append(wxID_NEW, _("&New\tCtrl+N"));
+  menubar->Append(wxID_OPEN, _("&Open\tCtrl+O"));
+  menubar->Append(fileMenu, _("File"));
+  // add open, new, etc options to your menubar.
+  wxMenuBar::MacSetCommonMenuBar(menubar);
+  
   wxApp::SetExitOnFrameDelete(false);
 /*
   wxMenuBar *menuBar = new wxMenuBar;
   // Enables the window list on MacOs.
   wxMenu *fileMenu = new wxMenu;
-  fileMenu->Append(wxID_NEW, _("&New\tCtrl+N"));
-  fileMenu->Append(wxID_OPEN, _("&Open\tCtrl+O"));
-  menuBar->Append(fileMenu, _("File"));
-  menuBar->SetAutoWindowMenu(true);
   wxMenuBar::MacSetCommonMenuBar(menuBar);
 */
+  Connect(wxID_NEW, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyApp::OnFileMenu));
+  Connect(wxID_OPEN, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyApp::OnFileMenu));
   Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyApp::OnFileMenu));
 #endif
 
@@ -468,6 +474,28 @@ void MyApp::OnFileMenu(wxCommandEvent &ev)
     NewWindow(wxEmptyString, false, false,
               toleranceCalculations_wxm_gz, toleranceCalculations_wxm_gz_len);
     break;
+  case wxID_OPEN:
+  {
+    wxString lastPath;
+    wxConfig::Get()->Read(wxT("lastPath"), &lastPath);
+    wxString file = wxFileSelector(_("Open"), wxEmptyString,
+                                   wxEmptyString, wxEmptyString,
+                                   _("All openable types (*.wxm, *.wxmx, *.mac, *.out, *.xml)|*.wxm;*.wxmx;*.mac;*.out;*.xml|"
+                                     "wxMaxima document (*.wxm, *.wxmx)|*.wxm;*.wxmx|"
+                                     "Maxima session (*.mac)|*.mac|"
+                                     "Xmaxima session (*.out)|*.out|"
+                                     "xml from broken .wxmx (*.xml)|*.xml"),
+                                   wxFD_OPEN);
+    
+    if (!file.empty())
+    {
+      // On the mac the "File/New" menu item by default opens a new window instead od
+      // reusing the old one.
+      NewWindow(file);
+    }
+    
+    break;
+    }
     case wxID_NEW:
     {
       // Mac computers insist that all instances of a new application need to share
