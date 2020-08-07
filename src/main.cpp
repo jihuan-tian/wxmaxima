@@ -39,6 +39,7 @@
 
 #include "../examples/examples.h"
 #include "wxMaxima.h"
+#include "ConfigDialogue.h"
 #include "Version.h"
 
 // On wxGTK2 we support printing only if wxWidgets is compiled with gnome_print.
@@ -310,6 +311,8 @@ bool MyApp::OnInit()
   wxMenu* menu = new wxMenu;
   menu->Append(wxID_NEW, _("&New\tCtrl+N"));
   menu->Append(wxID_OPEN, _("&Open\tCtrl+O"));
+  menu->Append(wxID_PREFERENCES, _("Preferences"));
+  menu->Append(wxID_EXIT, _("Exit"));
   menubar->Append(menu, _("File"));
   // add open, new, etc options to your menubar.
   wxMenuBar::MacSetCommonMenuBar(menubar);
@@ -514,6 +517,18 @@ void MyApp::OnFileMenu(wxCommandEvent &ev)
       }
       break;
     }
+    case wxID_PREFERENCES:
+    {
+      Configuration config;
+      ConfigDialogue *configW = new ConfigDialogue(NULL, &config);
+      configW->Centre(wxBOTH);
+      if (configW->ShowModal() == wxID_OK)
+        configW->WriteSettings();
+      
+      configW->Destroy();
+      wxConfig::Get()->Flush();
+      break;
+    }
     case wxID_EXIT:
     {
       for (wxMaxima *win : m_topLevelWindows)
@@ -524,6 +539,8 @@ void MyApp::OnFileMenu(wxCommandEvent &ev)
         event->SetLoggingOff(false);
         win->GetEventHandler()->QueueEvent(event);
       }
+      if(m_topLevelWindows.empty())
+        wxExit();
     }
     break;
   }
