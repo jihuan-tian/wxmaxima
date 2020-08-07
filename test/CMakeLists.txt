@@ -550,7 +550,7 @@ add_test(
     NAME threadtest
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/automatic_test_files
     COMMAND wxmaxima --logtostdout --pipe --batch threadtest.wxm)
-set_tests_properties(threadtest PROPERTIES TIMEOUT 160)
+set_tests_properties(threadtest PROPERTIES TIMEOUT 160 DISABLED YES)
 
 add_test(
     NAME autosave
@@ -592,7 +592,7 @@ add_test(
     NAME multithreadtest
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/automatic_test_files
     COMMAND wxmaxima --logtostdout --pipe --single_process --batch threadtest.wxm threadtest2.wxm)
-set_tests_properties(multithreadtest PROPERTIES TIMEOUT 160)
+set_tests_properties(multithreadtest PROPERTIES TIMEOUT 160 DISABLED YES)
 
 add_test(
     NAME ipc_copypaste1
