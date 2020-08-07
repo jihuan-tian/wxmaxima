@@ -1679,6 +1679,9 @@ void wxMaxima::ServerEvent(wxSocketEvent &event)
     break;
   case wxSOCKET_OUTPUT:
   {
+    // The last write command has finished, either with sending all the bytes
+    // we instructed it, or after sending a lower number, which is known to happen
+    // on FreeBSD.
     if((!m_client) || (!m_client->IsConnected()))
     {
       m_rawBytesSent = 0;
@@ -1689,11 +1692,9 @@ void wxMaxima::ServerEvent(wxSocketEvent &event)
     m_rawBytesSent  += bytesWritten;
     if(m_rawDataToSend.GetDataLen() > m_rawBytesSent)
     {
-      wxLogMessage(_("Continuing sending data to maxima."));
       m_client->Write(
         (void *)((char *)m_rawDataToSend.GetData() + m_rawBytesSent),
         m_rawDataToSend.GetDataLen() - m_rawBytesSent);
-      std::cerr<<"bytes=\""<<((char *)m_rawDataToSend.GetData() + m_rawBytesSent)<<"\"\n";
       if (m_client->Error()) {
         DoRawConsoleAppend(_("Error writing to Maxima"), MC_TYPE_ERROR);
         return;
@@ -4452,7 +4453,7 @@ void wxMaxima::OnIdle(wxIdleEvent &event)
     return;
   }
 
-    // If wxMaxima has to open a file on startup we wait for that until we have
+  // If wxMaxima has to open a file on startup we wait for that until we have
   // a valid draw context for size calculations.
   //
   // The draw context is created on displaying the worksheet for the 1st time
