@@ -305,23 +305,18 @@ bool MyApp::OnInit()
 
   //! The macintosh global menu
   wxMenuBar *menubar = new wxMenuBar;
-  wxMenu* menu = new  wxMenu();
+  wxMenu* menu = new wxMenu;
   menu->Append(wxID_NEW, _("&New\tCtrl+N"));
   menu->Append(wxID_OPEN, _("&Open\tCtrl+O"));
   menu->Append(menu, _("File"));
   // add open, new, etc options to your menubar.
   wxMenuBar::MacSetCommonMenuBar(menubar);
   
+  menubar->Connect(wxEVT_COMMAND_MENU_SELECTED,
+                   wxCommandEventHandler(MyApp::OnFileMenu),NULL, this);
+  Connect(wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(MyApp::OnFileMenu),NULL, this);
   wxApp::SetExitOnFrameDelete(false);
-/*
-  wxMenuBar *menuBar = new wxMenuBar;
-  // Enables the window list on MacOs.
-  wxMenu *fileMenu = new wxMenu;
-  wxMenuBar::MacSetCommonMenuBar(menuBar);
-*/
-  Connect(wxID_NEW, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyApp::OnFileMenu));
-  Connect(wxID_OPEN, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyApp::OnFileMenu));
-  Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyApp::OnFileMenu));
 #endif
 
   if (cmdLineParser.Found(wxT("v")))
