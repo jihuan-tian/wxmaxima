@@ -95,11 +95,6 @@ bool MyApp::OnInit()
   // is a window that can display it on the GUI instead.
   wxLogBuffer noStdErr;
   {
-    
-    Connect(wxID_NEW, wxEVT_MENU, wxCommandEventHandler(MyApp::OnFileMenu), NULL, this);
-    Connect(wxMaximaFrame::menu_help_tutorials_start, wxMaximaFrame::menu_help_tutorials_end,
-            wxEVT_MENU, wxCommandEventHandler(MyApp::OnFileMenu), NULL, this);
-    
     // If supported: Generate symbolic backtraces on crashes.
     #if wxUSE_ON_FATAL_EXCEPTION
     wxHandleFatalExceptions(true);
@@ -191,6 +186,8 @@ bool MyApp::OnInit()
       {wxCMD_LINE_OPTION, "o", "open", "open a file", wxCMD_LINE_VAL_STRING , 0},
       {wxCMD_LINE_SWITCH, "e", "eval",
        "evaluate the file after opening it.", wxCMD_LINE_VAL_NONE , 0},
+      {wxCMD_LINE_SWITCH, "", "single_process",
+       "Open all files from within the same process.", wxCMD_LINE_VAL_NONE , 0},
       {wxCMD_LINE_SWITCH, "b", "batch",
        "run the file and exit afterwards. Halts on questions and stops on errors.",  wxCMD_LINE_VAL_NONE, 0},
                   {wxCMD_LINE_SWITCH, "", "logtostdout",
@@ -215,6 +212,9 @@ bool MyApp::OnInit()
        
   cmdLineParser.SetDesc(cmdLineDesc);
   int cmdLineError = cmdLineParser.Parse();
+
+  if (cmdLineParser.Found(wxT("single_process")))
+    m_allWindowsInOneProcess = true;
 
   if (cmdLineParser.Found(wxT("h")))
   {
@@ -297,6 +297,8 @@ bool MyApp::OnInit()
   wxSetWorkingDirectory(oldWorkingDir);
 
 #endif
+
+  Connect(wxEVT_MENU, wxCommandEventHandler(MyApp::OnFileMenu), NULL, this);    
 
 #if defined __WXOSX__
   wxString path;
@@ -422,9 +424,9 @@ void MyApp::NewWindow(const wxString &file, bool evalOnStartup, bool exitAfterEv
     frame->SetWXMdata(initialContents);
   }
   
-  frame->ExitAfterEval(exitAfterEval);
   frame->EvalOnStartup(evalOnStartup);
   m_topLevelWindows.push_back(frame);
+  frame->ExitAfterEval(exitAfterEval);
 
   SetTopWindow(frame);
   frame->Show(true);
@@ -498,18 +500,18 @@ void MyApp::OnFileMenu(wxCommandEvent &ev)
       // the same process. On all other OSes we create a separate process for each
       // window: This way if one instance of wxMaxima crashes all the other instances
       // are still alive.
-#if defined __WXOSX__
-      NewWindow();
-#else
-//      NewWindow();
-      wxString args;
-      if(Configuration::m_configfileLocation_override != wxEmptyString)
-        args += " -f \"" + Configuration::m_configfileLocation_override + "\"";
-      if(Configuration::m_maximaLocation_override != wxEmptyString)
-        args += " -m \"" + Configuration::m_maximaLocation_override + "\"";
-
-      wxExecute(wxT("\"") + wxStandardPaths::Get().GetExecutablePath() + wxT("\"") + args);
-#endif
+      if(m_allWindowsInOneProcess)
+        NewWindow();
+      else
+      {
+        wxString args;
+        if(Configuration::m_configfileLocation_override != wxEmptyString)
+          args += " -f \"" + Configuration::m_configfileLocation_override + "\"";
+        if(Configuration::m_maximaLocation_override != wxEmptyString)
+          args += " -m \"" + Configuration::m_maximaLocation_override + "\"";
+        
+        wxExecute(wxT("\"") + wxStandardPaths::Get().GetExecutablePath() + wxT("\"") + args);
+      }
       break;
     }
     case wxID_EXIT:
