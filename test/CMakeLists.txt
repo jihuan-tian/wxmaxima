@@ -577,6 +577,18 @@ add_test(
 set_tests_properties(invalid_commandline_arg PROPERTIES TIMEOUT 60 WILL_FAIL true)
 
 add_test(
+    NAME multiple_batch_files
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/automatic_test_files
+    COMMAND wxmaxima --gibberish --batch unicode.wxm boxes.wxm)
+set_tests_properties(multiple_batch_files PROPERTIES TIMEOUT 60 WILL_FAIL true)
+
+add_test(
+    NAME multiple_batch_files2
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/automatic_test_files
+    COMMAND wxmaxima --gibberish --batch --single_process unicode.wxm boxes.wxm)
+set_tests_properties(multiple_batch_files2 PROPERTIES TIMEOUT 60 WILL_FAIL true)
+
+add_test(
     NAME ipc_copypaste1
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/automatic_test_files
     COMMAND wxmaxima --enableipc --batch ipc_copypaste1.wxm)
