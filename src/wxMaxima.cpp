@@ -1560,8 +1560,9 @@ void wxMaxima::SendMaxima(wxString s, bool addToHistory)
       // bytes were sent. Which (at least on BSD) might be lower than we wanted.
       if(m_rawDataToSend.GetDataLen() > 0)
       {
-        // We are already sending => append everything except the trailing NULL
-        // char at the end of the string to the buffer containing the data we want
+        // We are already sending, or at least haven't yet received the
+        // "data has been sent" signal => append everything except the trailing NULL
+        // char to the end of the string to the buffer containing the data we want
         // to send.
         m_rawDataToSend.AppendData(data_raw.data(),data_raw.length());
       }
@@ -1617,10 +1618,11 @@ void wxMaxima::TryToReadDataFromMaxima()
   if(m_clientTextStream == NULL)
     return;
   m_statusBar->NetworkStatus(StatusBar::receive);
-
-  // Read all new lines of text we received.
+  
+  // Read up tp 100000 bytes of text from maxima in one go.
   wxChar chr;
-
+  m_newCharsFromMaxima.reserve(m_newCharsFromMaxima.Length() + 100000);
+    
   int newBytes = 0;
   while((m_client->IsConnected()) && (m_client->IsData()) && (m_clientStream != NULL) &&
         (!m_clientStream->Eof()))
@@ -1631,7 +1633,7 @@ void wxMaxima::TryToReadDataFromMaxima()
     if(chr != '\0')
       m_newCharsFromMaxima += chr;
     // Trigger the gui every few kilobytes so it stays responsible during
-    // a big data transfer
+    // big data transfers
     if(newBytes++>100000)
     {
       // Make sure that the idle loop is triggered that causes more data to be read
@@ -1691,6 +1693,7 @@ void wxMaxima::ServerEvent(wxSocketEvent &event)
       m_client->Write(
         (void *)((char *)m_rawDataToSend.GetData() + m_rawBytesSent),
         m_rawDataToSend.GetDataLen() - m_rawBytesSent);
+      std::cerr<<"bytes=\""<<((char *)m_rawDataToSend.GetData() + m_rawBytesSent)<<"\"\n";
       if (m_client->Error()) {
         DoRawConsoleAppend(_("Error writing to Maxima"), MC_TYPE_ERROR);
         return;
@@ -2308,7 +2311,7 @@ bool wxMaxima::ParseNextChunkFromMaxima(wxString &data)
   wxString miscText;
   miscText.reserve(data.Length());
   wxString tagName;
-  miscText.reserve(64);
+  tagName.reserve(64);
   auto tagIndex = m_knownXMLTags.end();
   bool tagFound = false;
   wxString::const_iterator it;
