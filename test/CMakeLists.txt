@@ -591,7 +591,7 @@ set_tests_properties(multiple_batch_files2 PROPERTIES TIMEOUT 60 WILL_FAIL true)
 add_test(
     NAME multithreadtest
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/automatic_test_files
-    COMMAND wxmaxima --logtostdout --pipe --single-process --batch threadtest.wxm threadtest2.wxm)
+    COMMAND wxmaxima --logtostdout --pipe --single_process --batch threadtest.wxm threadtest2.wxm)
 set_tests_properties(multithreadtest PROPERTIES TIMEOUT 160)
 
 add_test(
