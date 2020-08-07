@@ -308,7 +308,7 @@ bool MyApp::OnInit()
   wxMenu* menu = new wxMenu;
   menu->Append(wxID_NEW, _("&New\tCtrl+N"));
   menu->Append(wxID_OPEN, _("&Open\tCtrl+O"));
-  menu->Append(menu, _("File"));
+  menubar->Append(menu, _("File"));
   // add open, new, etc options to your menubar.
   wxMenuBar::MacSetCommonMenuBar(menubar);
   
