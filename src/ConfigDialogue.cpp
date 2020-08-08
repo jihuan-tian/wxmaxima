@@ -688,6 +688,24 @@ wxPanel *ConfigDialogue::CreateRevertToDefaultsPanel()
     wxSizerFlags().Border(wxALL,5).
     Expand()
     );
+  wxButton *reloadAllButton = new wxButton(panel, -1, _("Reload all GUI settings from disc"));
+  reloadAllButton->Connect(wxEVT_BUTTON,
+                          wxCommandEventHandler(ConfigDialogue::OnReloadAll),
+                          NULL, this);
+  vsizer->Add(
+    reloadAllButton,
+    wxSizerFlags().Border(wxALL,5).
+    Expand()
+    );
+  wxButton *reloadStylesButton = new wxButton(panel, -1, _("Reload the style settings from disc"));
+  reloadStylesButton->Connect(wxEVT_BUTTON,
+                          wxCommandEventHandler(ConfigDialogue::OnReloadStyles),
+                          NULL, this);
+  vsizer->Add(
+    reloadStylesButton,
+    wxSizerFlags().Border(wxALL,5).
+    Expand()
+    );
   wxButton *resetStylesButton = new wxButton(panel, -1, _("Reset the Style settings"));
   resetStylesButton->Connect(wxEVT_BUTTON,
                           wxCommandEventHandler(ConfigDialogue::OnResetStyles),
@@ -1532,6 +1550,24 @@ void ConfigDialogue::OnResetStyles(wxCommandEvent&  WXUNUSED(event))
 {
   wxLogMessage(_("Resetting all configuration settings"));
   m_configuration->InitStyles();
+  SetCheckboxValues();
+  wxCommandEvent dummy;
+  OnChangeStyle(dummy);
+}
+
+void ConfigDialogue::OnReloadAll(wxCommandEvent&  WXUNUSED(event))
+{
+  wxLogMessage(_("Reloading the configuration from disc"));
+  m_configuration->ReadConfig();
+  SetCheckboxValues();
+  wxCommandEvent dummy;
+  OnChangeStyle(dummy);
+}
+
+void ConfigDialogue::OnReloadStyles(wxCommandEvent&  WXUNUSED(event))
+{
+  wxLogMessage(_("Reloading the configuration from disc"));
+  m_configuration->ReadStyles();
   SetCheckboxValues();
   wxCommandEvent dummy;
   OnChangeStyle(dummy);
