@@ -565,6 +565,17 @@ protected:
 
   //! reads the output the maxima command sends to stdout
   void ReadProcessOutput();
+  
+  void VariableActionUserDir(const wxString &value);
+  void VariableActionTempDir(const wxString &value);
+  void VariableActionAutoconfVersion(const wxString &value);
+  void VariableActionAutoconfHost(const wxString &value);
+  void VariableActionMaximaInfodir(const wxString &value);
+  void VariableActionGnuplotCommand(const wxString &value);
+  void VariableActionMaximaSharedir(const wxString &value);
+  void VariableActionLispName(const wxString &value);
+  void VariableActionLispVersion(const wxString &value);
+  void VariableActionWxLoadFileName(const wxString &value);
 
 #endif
 
@@ -764,8 +775,12 @@ private:
   //! A pointer to a method that handles a text chunk
   typedef void (wxMaxima::*ParseFunction)(wxString &s);
   WX_DECLARE_STRING_HASH_MAP(ParseFunction, ParseFunctionHash);
+  typedef void (wxMaxima::*VarReadFunction)(const wxString &value);
+  WX_DECLARE_STRING_HASH_MAP(VarReadFunction, VarReadFunctionHash);
   //! A list of XML tags we know and what we want to do if we encounter them
   static ParseFunctionHash m_knownXMLTags;
+  //! A list of actions we want to execute if we are sent the contents of specific variables
+  static VarReadFunctionHash m_variableReadActions;
 
 #if wxUSE_DRAG_AND_DROP
 
